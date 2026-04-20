@@ -4,122 +4,86 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>LOL Draft</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --gold:#c89b3c;--gold-lt:#f0d475;
-  --blue:#0bc4e3;
-  --red:#e84057;
-  --bg:#000;--panel:#0d0d0d;--border:#222;
-  --text:#ccc;--muted:#444;
-}
-html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px}
-.app{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:40px}
-
-header{text-align:center;padding:22px 20px 14px;width:100%}
-header h1{font-size:clamp(1.4rem,4vw,2rem);font-weight:700;color:#fff;letter-spacing:.2em;text-transform:uppercase}
-header p{font-size:.72rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
-
-.board{display:grid;grid-template-columns:1fr 190px 1fr;gap:16px;width:100%;max-width:1060px;padding:0 16px;margin-top:8px}
-
-.team-col{display:flex;flex-direction:column;gap:7px}
-.team-label{font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:7px 12px;border-radius:3px}
-.team-label.blue{color:var(--blue);border-left:2px solid var(--blue);background:rgba(11,196,227,.06)}
-.team-label.red{color:var(--red);border-right:2px solid var(--red);background:rgba(232,64,87,.06);text-align:right}
-
-.slot{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:4px;border:1px solid var(--border);background:var(--panel);cursor:pointer;transition:border-color .15s,box-shadow .15s;min-height:74px;position:relative;}
-.slot:hover{border-color:#444}
-.slot.active{border-color:#fff;box-shadow:0 0 0 1px #fff}
-.slot.filled{border-color:#2a2a2a}
-.slot.filled.active{border-color:#fff;box-shadow:0 0 0 1px #fff}
-
-.pick-num{position:absolute;top:3px;left:7px;font-size:.58rem;font-weight:700;color:var(--muted);letter-spacing:.06em}
-.red .pick-num{left:auto;right:7px}
-
-.slot-img{width:58px;height:58px;border-radius:3px;flex-shrink:0;background:#111;border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.2rem}
+:root{--blue:#0bc4e3;--red:#e84057;--gold:#c89b3c;--gold-lt:#f0d475;--bg:#000;--panel:#0d0d0d;--border:#252525;--text:#ccc;--muted:#444;}
+html,body{min-height:100%;background:#000;color:var(--text);font-family:'Rajdhani',sans-serif}
+.app{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 0 60px}
+header{text-align:center;padding:28px 0 16px;width:100%}
+header h1{font-size:clamp(2rem,5vw,3rem);font-weight:700;color:#fff;letter-spacing:.25em}
+header p{font-size:.78rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-top:4px}
+.board{display:grid;grid-template-columns:1fr 210px 1fr;gap:20px;width:100%;max-width:1200px;padding:0 20px;margin-top:12px}
+.team-col{display:flex;flex-direction:column;gap:8px}
+.team-label{font-size:.85rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:9px 14px;border-radius:3px}
+.team-label.blue{color:var(--blue);border-left:3px solid var(--blue);background:rgba(11,196,227,.06)}
+.team-label.red{color:var(--red);border-right:3px solid var(--red);background:rgba(232,64,87,.06);text-align:right}
+.slot{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:5px;border:1px solid var(--border);background:var(--panel);cursor:pointer;transition:border-color .15s,box-shadow .15s;min-height:88px;position:relative}
+.slot:hover:not(.active){border-color:#383838}
+.slot.active{border-color:#fff;box-shadow:0 0 0 1px #fff,0 0 18px rgba(255,255,255,.12)}
+.slot.filled{border-color:#282828}
+.slot.filled.active{border-color:#fff;box-shadow:0 0 0 1px #fff,0 0 18px rgba(255,255,255,.12)}
+.pick-num{position:absolute;top:4px;left:9px;font-size:.6rem;font-weight:700;color:var(--muted);letter-spacing:.06em}
+.red .pick-num{left:auto;right:9px}
+.slot-img{width:68px;height:68px;border-radius:4px;flex-shrink:0;background:#111;border:1px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.4rem}
 .slot-img img{width:100%;height:100%;object-fit:cover}
-
 .slot-info{flex:1;min-width:0}
-.role-sel{font-family:'Rajdhani',sans-serif;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;background:#111;color:var(--muted);border:1px solid var(--border);border-radius:2px;padding:2px 4px;cursor:pointer;outline:none;margin-bottom:2px;width:100%}
+.role-sel{font-family:'Rajdhani',sans-serif;font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;background:#111;color:var(--muted);border:1px solid var(--border);border-radius:2px;padding:3px 5px;cursor:pointer;outline:none;margin-bottom:3px;width:100%}
 .role-sel:focus{border-color:var(--gold);color:var(--gold-lt)}
-.slot-name{font-size:.88rem;font-weight:600;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.slot-name.empty{color:var(--muted);font-weight:400;font-size:.76rem}
-
+.slot-name{font-size:1rem;font-weight:600;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot-name.empty{color:#3a3a3a;font-weight:400;font-size:.82rem}
 .red .slot{flex-direction:row-reverse}
 .red .slot-info{text-align:right}
 .red .role-sel{text-align:right}
-
-.center{display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:40px}
-.vs{font-size:1.4rem;font-weight:700;color:#333;letter-spacing:.2em}
-
+.center{display:flex;flex-direction:column;align-items:center;gap:12px;padding-top:46px}
+.vs{font-size:1.6rem;font-weight:700;color:#2a2a2a;letter-spacing:.2em}
 .winbar-wrap{width:100%}
-.winbar-pcts{display:flex;justify-content:space-between;font-size:.68rem;letter-spacing:.06em;margin-bottom:3px}
+.winbar-pcts{display:flex;justify-content:space-between;font-size:.72rem;letter-spacing:.06em;margin-bottom:4px}
 .winbar-pcts .b{color:var(--blue)}.winbar-pcts .r{color:var(--red)}
-.winbar{height:6px;background:#1a0a0e;border-radius:3px;overflow:hidden;border:1px solid var(--border)}
-.winbar-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .5s ease;width:50%}
-
-.draft-info{font-size:.68rem;color:var(--muted);letter-spacing:.06em;text-align:center}
-
-.btn{font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:11px 0;width:100%;border-radius:3px;border:1px solid;cursor:pointer;transition:all .15s;text-align:center}
-.btn-pick{border-color:var(--blue);color:var(--blue);background:rgba(11,196,227,.06)}
-.btn-pick:hover{background:rgba(11,196,227,.16)}
-.btn-predict{border-color:var(--gold);color:var(--gold);background:rgba(200,155,60,.06)}
-.btn-predict:hover{background:rgba(200,155,60,.16)}
-.btn-reset{border-color:#222;color:#444;background:transparent;font-size:.7rem}
+.winbar{height:7px;background:#180a0e;border-radius:4px;overflow:hidden;border:1px solid #1a1a1a}
+.winbar-fill{height:100%;background:var(--blue);border-radius:4px;transition:width .5s ease;width:50%}
+.draft-info{font-size:.72rem;color:#333;letter-spacing:.06em;text-align:center;min-height:1.1em}
+.btn{font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:13px 0;width:100%;border-radius:4px;border:1px solid;cursor:pointer;transition:all .15s;text-align:center}
+.btn-pick{border-color:var(--blue);color:var(--blue);background:rgba(11,196,227,.07)}
+.btn-pick:hover{background:rgba(11,196,227,.18)}
+.btn-predict{border-color:var(--gold);color:var(--gold);background:rgba(200,155,60,.07)}
+.btn-predict:hover{background:rgba(200,155,60,.18)}
+.btn-reset{border-color:#1e1e1e;color:#3a3a3a;background:transparent;font-size:.74rem}
 .btn-reset:hover{border-color:var(--red);color:var(--red)}
-
-.reco{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:9px;display:none}
-.reco-title{font-size:.66rem;color:var(--gold);letter-spacing:.1em;text-align:center;margin-bottom:7px;text-transform:uppercase}
-.reco-list{display:flex;flex-direction:column;gap:3px}
-.reco-item{display:flex;align-items:center;gap:7px;padding:4px 6px;border-radius:3px;background:rgba(255,255,255,.02);cursor:pointer;transition:background .12s}
-.reco-item:hover{background:rgba(200,155,60,.08)}
-.reco-item img{width:28px;height:28px;border-radius:2px;object-fit:cover;border:1px solid var(--border)}
-.reco-item-name{flex:1;font-size:.78rem;font-weight:600}
-.reco-item-prob{font-size:.72rem;color:var(--blue);font-weight:700}
-
-.overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.92);backdrop-filter:blur(4px);align-items:center;justify-content:center}
+.reco{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:10px;display:none}
+.reco-title{font-size:.68rem;color:var(--gold);letter-spacing:.1em;text-align:center;margin-bottom:8px;text-transform:uppercase}
+.reco-list{display:flex;flex-direction:column;gap:4px}
+.reco-item{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:3px;background:rgba(255,255,255,.02);cursor:pointer;transition:background .12s}
+.reco-item:hover{background:rgba(200,155,60,.09)}
+.reco-item img{width:32px;height:32px;border-radius:3px;object-fit:cover;border:1px solid var(--border)}
+.reco-item-name{flex:1;font-size:.82rem;font-weight:600}
+.reco-item-prob{font-size:.76rem;color:var(--blue);font-weight:700}
+.overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.93);backdrop-filter:blur(5px);align-items:center;justify-content:center}
 .overlay.open{display:flex}
-.modal{background:#0d0d0d;border:1px solid #222;border-radius:6px;width:min(560px,95vw);max-height:82vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.9)}
-.modal-head{padding:12px 16px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between}
-.modal-head-title{color:#fff;font-size:.88rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-.modal-close{background:none;border:none;color:#444;font-size:1.3rem;cursor:pointer}
+.modal{background:#0d0d0d;border:1px solid #222;border-radius:7px;width:min(620px,96vw);max-height:84vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.95)}
+.modal-head{padding:14px 18px;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;justify-content:space-between}
+.modal-head-title{color:#fff;font-size:.92rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.modal-close{background:none;border:none;color:#3a3a3a;font-size:1.5rem;cursor:pointer;line-height:1}
 .modal-close:hover{color:var(--red)}
-.search{width:100%;padding:10px 14px;background:#111;border:none;border-bottom:1px solid #222;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.95rem;outline:none}
+.search{width:100%;padding:11px 16px;background:#111;border:none;border-bottom:1px solid #1e1e1e;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:1rem;outline:none}
 .search:focus{border-bottom-color:var(--gold)}
-.search::placeholder{color:#333}
-.champ-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;padding:10px;overflow-y:auto;flex:1}
-.champ-card{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 3px;border-radius:4px;border:1px solid transparent;cursor:pointer;transition:all .12s;background:rgba(255,255,255,.02)}
-.champ-card:hover{border-color:var(--gold);background:rgba(200,155,60,.07)}
-.champ-card.used{opacity:.2;pointer-events:none}
-.champ-card img{width:50px;height:50px;border-radius:3px;object-fit:cover;border:1px solid #222}
-.champ-card span{font-size:.58rem;text-align:center;color:#aaa;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(14px);background:#111;border:1px solid var(--gold);color:var(--gold-lt);font-family:'Rajdhani',sans-serif;font-size:.8rem;letter-spacing:.05em;padding:8px 16px;border-radius:3px;z-index:200;opacity:0;transition:all .3s;pointer-events:none}
+.search::placeholder{color:#2a2a2a}
+.champ-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px;padding:12px;overflow-y:auto;flex:1}
+.champ-card{display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 4px;border-radius:5px;border:1px solid transparent;cursor:pointer;transition:all .12s;background:rgba(255,255,255,.02)}
+.champ-card:hover{border-color:var(--gold);background:rgba(200,155,60,.08)}
+.champ-card.used{opacity:.18;pointer-events:none}
+.champ-card img{width:56px;height:56px;border-radius:4px;object-fit:cover;border:1px solid #1e1e1e}
+.champ-card span{font-size:.62rem;text-align:center;color:#888;max-width:78px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(14px);background:#111;border:1px solid var(--gold);color:var(--gold-lt);font-family:'Rajdhani',sans-serif;font-size:.82rem;letter-spacing:.05em;padding:9px 18px;border-radius:3px;z-index:200;opacity:0;transition:all .3s;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-@media(max-width:660px){
-  .board{grid-template-columns:1fr;gap:10px}
-  .center{padding-top:0}
-  .red .slot{flex-direction:row}
-  .red .slot-info{text-align:left}
-  .red .role-sel{text-align:left}
-  .red .pick-num{left:7px;right:auto}
-}
+@media(max-width:700px){.board{grid-template-columns:1fr;gap:12px}.center{padding-top:0}.red .slot{flex-direction:row}.red .slot-info{text-align:left}.red .role-sel{text-align:left}.red .pick-num{left:9px;right:auto}}
 </style>
 </head>
 <body>
 <div class="app">
-<header>
-  <h1>LOL</h1>
-  <p>Champion Draft Predictor</p>
-</header>
-
+<header><h1>LOL</h1><p>Champion Draft Predictor</p></header>
 <div class="board">
-  <div class="team-col blue" id="blue-col">
-    <div class="team-label blue">Blue Team</div>
-  </div>
+  <div class="team-col blue" id="blue-col"><div class="team-label blue">Blue Team</div></div>
   <div class="center">
     <div class="vs">VS</div>
     <div class="winbar-wrap">
@@ -127,56 +91,39 @@ header p{font-size:.72rem;color:var(--muted);letter-spacing:.1em;text-transform:
       <div class="winbar"><div class="winbar-fill" id="wbar"></div></div>
     </div>
     <div class="draft-info" id="draft-info">Pick 1 of 10 — Blue Team</div>
-    <button class="btn btn-pick" onclick="openModal()">+ Add Champion</button>
+    <button class="btn btn-pick" id="btn-add" onclick="openModal()">+ Add Champion</button>
     <button class="btn btn-predict" onclick="predict()">Predict Best Pick</button>
-    <div class="reco" id="reco">
-      <div class="reco-title" id="reco-title">Recommendations</div>
-      <div class="reco-list" id="reco-list"></div>
-    </div>
+    <div class="reco" id="reco"><div class="reco-title" id="reco-title">Recommendations</div><div class="reco-list" id="reco-list"></div></div>
     <button class="btn btn-reset" onclick="resetAll()">Reset Draft</button>
   </div>
-  <div class="team-col red" id="red-col">
-    <div class="team-label red">Red Team</div>
-  </div>
+  <div class="team-col red" id="red-col"><div class="team-label red">Red Team</div></div>
 </div>
 </div>
-
 <div class="overlay" id="overlay">
   <div class="modal">
-    <div class="modal-head">
-      <span class="modal-head-title" id="modal-title">Pick a Champion</span>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
+    <div class="modal-head"><span class="modal-head-title" id="modal-title">Pick a Champion</span><button class="modal-close" onclick="closeModal()">×</button></div>
     <input class="search" id="search" placeholder="Search champion…" oninput="filterGrid()"/>
     <div class="champ-grid" id="champ-grid"></div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
 const API="https://machine-learning-spring-2026-final.onrender.com";
-const DD="https://ddragon.leagueoflegends.com/cdn/14.10.1/img/champion";
+const DD="https://ddragon.leagueoflegends.com/cdn/15.8.1/img/champion";
 
 // Correct LoL draft order: B1, R1, R2, B2, B3, R3, R4, B4, B5, R5
-const DRAFT_ORDER=[
-  ['blue',0],
-  ['red',0],['red',1],
-  ['blue',1],['blue',2],
-  ['red',2],['red',3],
-  ['blue',3],['blue',4],
-  ['red',4],
-];
+const DRAFT_ORDER=[['blue',0],['red',0],['red',1],['blue',1],['blue',2],['red',2],['red',3],['blue',3],['blue',4],['red',4]];
 
 const ROLE_POOL={
   top:['Aatrox','Camille','Darius','Fiora','Gangplank','Garen','Gnar','Gragas','Gwen','Illaoi','Irelia','Jax','Jayce','Kayle','Kennen','Kled','Malphite','Maokai','Mordekaiser','Nasus','Ornn','Pantheon','Poppy','Quinn','Renekton','Riven','Rumble','Sett','Shen','Shyvana','Singed','Sion','Teemo','Tryndamere','Urgot','Vayne','Vladimir','Volibear','Warwick','Yorick','Ambessa','KSante','Olaf'],
-  jungle:['Amumu','Belveth','Briar','Darius','Diana','Ekko','Elise','Evelynn','Fiddlesticks','Gragas','Graves','Hecarim','Ivern','Jarvan IV','Kayn',"Kha'Zix",'Kindred','Kled','LeeSin','Lillia','MasterYi','MonkeyKing','Mordekaiser','Nidalee','Nocturne','Nunu','Olaf','Pantheon','Poppy','Rammus','RekSai','Rengar','Sejuani','Shaco','Shyvana','Skarner','Sylas','Taliyah','Trundle','Udyr','Vi','Viego','Volibear','Warwick','XinZhao','Zac'],
-  mid:['Ahri','Akali','Akshan','Anivia','Annie','Aurelion Sol','Aurora','Azir','Cassiopeia','Corki','Diana','Ekko','Fizz','Galio','Gragas','Hwei','Irelia','Jayce','Kassadin','Katarina','Leblanc','Lissandra','Lux','Malzahar','Naafiri','Neeko','Orianna','Pantheon','Qiyana','Ryze','Sylas','Syndra','Taliyah','Talon','TwistedFate','Veigar','Vex','Viktor','Vladimir','Xerath','Yasuo','Yone','Zed','Ziggs','Zoe','Mel'],
+  jungle:['Amumu','Belveth','Briar','Darius','Diana','Ekko','Elise','Evelynn','Fiddlesticks','Gragas','Graves','Hecarim','Ivern','JarvanIV','Kayn','KhaZix','Kindred','Kled','LeeSin','Lillia','MasterYi','MonkeyKing','Mordekaiser','Nidalee','Nocturne','Nunu','Olaf','Pantheon','Poppy','Rammus','RekSai','Rengar','Sejuani','Shaco','Shyvana','Skarner','Sylas','Taliyah','Trundle','Udyr','Vi','Viego','Volibear','Warwick','XinZhao','Zac'],
+  mid:['Ahri','Akali','Akshan','Anivia','Annie','AurelionSol','Aurora','Azir','Cassiopeia','Corki','Diana','Ekko','Fizz','Galio','Gragas','Hwei','Irelia','Jayce','Kassadin','Katarina','Leblanc','Lissandra','Lux','Malzahar','Naafiri','Neeko','Orianna','Pantheon','Qiyana','Ryze','Sylas','Syndra','Taliyah','Talon','TwistedFate','Veigar','Vex','Viktor','Vladimir','Xerath','Yasuo','Yone','Zed','Ziggs','Zoe','Mel'],
   bot:['Aphelios','Ashe','Caitlyn','Corki','Draven','Ezreal','Jhin','Jinx','Kaisa','Kalista','KogMaw','Lucian','MissFortune','Nilah','Quinn','Samira','Senna','Sivir','Smolder','Tristana','Twitch','Varus','Vayne','Xayah','Yasuo','Yone','Zeri','Ziggs'],
-  support:['Alistar','Bard','Blitzcrank','Brand','Braum','Janna','Karma','Lulu','Lux','Maokai','Milio','Morgana','Nami','Nautilus','Neeko','Pyke','Rakan','Rell','Renata','Senna','Seraphine','Shaco','Sona','Soraka','Swain','Tahm Kench','Taric','Thresh',"Vel'Koz",'Xerath','Yuumi','Zilean','Zyra','Zoe','Leona','Galio','Heimerdinger'],
+  support:['Alistar','Bard','Blitzcrank','Brand','Braum','Janna','Karma','Lulu','Lux','Maokai','Milio','Morgana','Nami','Nautilus','Neeko','Pyke','Rakan','Rell','Renata','Senna','Seraphine','Shaco','Sona','Soraka','Swain','TahmKench','Taric','Thresh','Velkoz','Xerath','Yuumi','Zilean','Zyra','Zoe','Leona','Galio','Heimerdinger'],
 };
 
-const DD_KEY={MonkeyKing:'MonkeyKing',KSante:'KSante',Belveth:'Belveth',MasterYi:'MasterYi',MissFortune:'MissFortune',TwistedFate:'TwistedFate',XinZhao:'XinZhao',LeeSin:'LeeSin',RekSai:'RekSai',AurelionSol:'AurelionSol',JarvanIV:'JarvanIV',KhaZix:'Khazix',VelKoz:'Velkoz',TahmKench:'TahmKench'};
+// normalized DD keys for special names
+const DD_KEY={MonkeyKing:'MonkeyKing',KSante:'KSante',Belveth:'Belveth',MasterYi:'MasterYi',MissFortune:'MissFortune',TwistedFate:'TwistedFate',XinZhao:'XinZhao',LeeSin:'LeeSin',RekSai:'RekSai',AurelionSol:'AurelionSol',JarvanIV:'JarvanIV',KhaZix:'Khazix',VelKoz:'Velkoz',TahmKench:'TahmKench',Velkoz:'Velkoz',Aurora:'Aurora',Ambessa:'Ambessa',Mel:'Mel',Naafiri:'Naafiri',Hwei:'Hwei',Smolder:'Smolder',Nilah:'Nilah',Briar:'Briar',Milio:'Milio',KSante:'KSante'};
 function ddKey(n){const k=n.replace(/[' .\-]/g,'');return DD_KEY[k]||k;}
 function img(n){return `${DD}/${ddKey(n)}.png`;}
 
@@ -184,13 +131,12 @@ let allChampions=[];
 let slots={blue:Array(5).fill(null),red:Array(5).fill(null)};
 let roles={blue:Array(5).fill(''),red:Array(5).fill('')};
 let pickIndex=0;
-let modalPool=null;
 
 async function init(){
   try{
     const r=await fetch(`${API}/champions`);
     allChampions=(await r.json()).champions.sort();
-  }catch(e){toast('⚠ Cannot reach API');}
+  }catch(e){toast('Cannot reach API — Render may be waking up (30s)');}
   render();
 }
 
@@ -205,25 +151,20 @@ function renderTeam(team){
     const role=roles[team][i];
     const orderIdx=DRAFT_ORDER.findIndex(([t,s])=>t===team&&s===i);
     const isActive=pickIndex<10&&DRAFT_ORDER[pickIndex][0]===team&&DRAFT_ORDER[pickIndex][1]===i;
-
     const slot=document.createElement('div');
     slot.className='slot'+(champ?' filled':'')+(isActive?' active':'');
     slot.onclick=()=>{jumpTo(team,i);openModal();};
-
     const num=document.createElement('div');num.className='pick-num';num.textContent=`#${orderIdx+1}`;
     slot.appendChild(num);
-
     const pic=document.createElement('div');pic.className='slot-img';
     if(champ){const im=document.createElement('img');im.src=img(champ);im.onerror=()=>im.style.display='none';pic.appendChild(im);}
     else{pic.textContent='?';}
     slot.appendChild(pic);
-
     const info=document.createElement('div');info.className='slot-info';
     const rs=document.createElement('select');rs.className='role-sel';
     rs.innerHTML='<option value="">Any Role</option>'+Object.keys(ROLE_POOL).map(r=>`<option value="${r}"${role===r?' selected':''}>${r.charAt(0).toUpperCase()+r.slice(1)}</option>`).join('');
     rs.onchange=e=>{roles[team][i]=e.target.value;e.stopPropagation();};
     rs.onclick=e=>e.stopPropagation();
-
     const nm=document.createElement('div');nm.className='slot-name'+(champ?'':' empty');
     nm.textContent=champ||'Click to pick';
     info.appendChild(rs);info.appendChild(nm);
@@ -242,6 +183,7 @@ function updateDraftInfo(){
 function jumpTo(team,idx){
   const i=DRAFT_ORDER.findIndex(([t,s])=>t===team&&s===idx);
   if(i>=0)pickIndex=i;
+  render();
 }
 
 function openModal(){
@@ -250,25 +192,24 @@ function openModal(){
   const role=roles[team][idx];
   document.getElementById('modal-title').textContent=`Pick ${pickIndex+1} — ${team==='blue'?'Blue':'Red'} Team`;
   document.getElementById('search').value='';
-  modalPool=role&&ROLE_POOL[role]?ROLE_POOL[role]:null;
-  buildGrid();
+  buildGrid(role&&ROLE_POOL[role]?ROLE_POOL[role]:null);
   document.getElementById('overlay').classList.add('open');
 }
 function closeModal(){document.getElementById('overlay').classList.remove('open');}
 document.getElementById('overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
 
-function buildGrid(){
+function buildGrid(pool){
   const used=new Set([...slots.blue,...slots.red].filter(Boolean));
-  const pool=modalPool
-    ?allChampions.filter(n=>modalPool.some(p=>p.replace(/[' .\-]/g,'').toLowerCase()===n.replace(/[' .\-]/g,'').toLowerCase()))
-    :allChampions;
+  // normalize pool names to match API names
+  const normPool=pool?pool.map(p=>p.replace(/[' .\-]/g,'').toLowerCase()):null;
+  const source=normPool?allChampions.filter(n=>normPool.includes(n.replace(/[' .\-]/g,'').toLowerCase())):allChampions;
   const grid=document.getElementById('champ-grid');
   grid.innerHTML='';
-  pool.forEach(name=>{
+  source.forEach(name=>{
     const card=document.createElement('div');
     card.className='champ-card'+(used.has(name)?' used':'');
     card.dataset.n=name.toLowerCase();
-    const im=document.createElement('img');im.src=img(name);im.onerror=()=>im.src='';
+    const im=document.createElement('img');im.src=img(name);im.onerror=()=>{im.src='';im.style.background='#1a1a1a';};
     const sp=document.createElement('span');sp.textContent=name;
     card.appendChild(im);card.appendChild(sp);
     card.onclick=()=>pick(name);
@@ -292,20 +233,22 @@ function pick(name){
 }
 
 async function predict(){
-  if(pickIndex>=10){toast('Draft complete');return;}
+  if(pickIndex>=10){toast('Draft complete — reset to start over');return;}
   const[team,idx]=DRAFT_ORDER[pickIndex];
   const role=roles[team][idx]||null;
   toast('Predicting…');
   try{
     const r=await fetch(`${API}/predict`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({blue_team:slots.blue.filter(Boolean),red_team:slots.red.filter(Boolean),team,role})});
-    const d=await r.json();showReco(d.recommendations,team,idx);
-  }catch(e){toast('⚠ API error — try again in 30s');}
+    if(!r.ok)throw new Error('bad response');
+    const d=await r.json();
+    showReco(d.recommendations,team,idx);
+  }catch(e){toast('API error — Render may be waking up, wait 30s and try again');}
 }
 
 function showReco(recs,team,idx){
   const panel=document.getElementById('reco');
   const list=document.getElementById('reco-list');
-  document.getElementById('reco-title').textContent=`Best picks — ${team} slot ${idx+1}`;
+  document.getElementById('reco-title').textContent=`Best picks — ${team==='blue'?'Blue':'Red'} Slot ${idx+1}`;
   list.innerHTML='';
   recs.slice(0,8).forEach(r=>{
     const item=document.createElement('div');item.className='reco-item';
@@ -341,7 +284,7 @@ function resetAll(){
 }
 
 let tt;
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3500);}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),4000);}
 
 init();
 </script>
