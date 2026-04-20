@@ -94,6 +94,10 @@ header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:upperca
 
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(12px);background:#111;border:1px solid var(--gold);color:var(--gold-lt);font-family:'Rajdhani',sans-serif;font-size:.8rem;padding:8px 18px;border-radius:3px;z-index:200;opacity:0;transition:all .3s;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(200,155,60,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-loading{opacity:.7;pointer-events:none;cursor:default}
 </style>
 </head>
 <body>
@@ -263,17 +267,17 @@ async function predict(){
   if(pickIndex>=10){toast('Draft complete — reset to start over');return;}
   const[team,idx]=DRAFT_ORDER[pickIndex];
   const role=currentRole()||null;
-  // require role selection for full pool predict
-  toast('Predicting…');
+  const btn=document.querySelector('.btn-predict');
+  btn.innerHTML='<span class="spinner"></span>Predicting…';
+  btn.classList.add('btn-loading');
   try{
-    // request all champions for the role (top_n=999)
     const resp=await fetch(`${API}/predict`,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         blue_team:slots.blue.filter(Boolean),
         red_team:slots.red.filter(Boolean),
         team, role,
-        top_n: 999
+        top_n: 0
       })
     });
     if(!resp.ok){toast('Error '+resp.status);return;}
@@ -281,6 +285,10 @@ async function predict(){
     if(!d.recommendations||!d.recommendations.length){toast('No recommendations returned');return;}
     showReco(d.recommendations,team,idx,role);
   }catch(e){toast('API unreachable — wait 30s and retry');}
+  finally{
+    btn.innerHTML='Predict Best Pick';
+    btn.classList.remove('btn-loading');
+  }
 }
 
 function showReco(recs,team,idx,role){
