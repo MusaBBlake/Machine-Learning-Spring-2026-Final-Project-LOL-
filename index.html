@@ -237,7 +237,7 @@ function buildGrid(pool){
   const grid=document.getElementById('champ-grid');grid.innerHTML='';
   source.forEach(name=>{
     const card=document.createElement('div');
-    card.className='champ-card';
+    card.className='champ-card'+(used.has(name)?' used':'');
     card.dataset.n=display(name).toLowerCase();
     const im=document.createElement('img');im.src=ddImg(name);im.onerror=()=>{im.style.display='none';};
     const sp=document.createElement('span');sp.textContent=display(name);
