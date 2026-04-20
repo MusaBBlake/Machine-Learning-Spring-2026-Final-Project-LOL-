@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LoL Draft Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  /* ── Reset & Variables ─────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold:     #c89b3c;
+    --gold-lt:  #f0d475;
+    --blue:     #0bc4e3;
+    --blue-dk:  #0a3d5c;
+    --red:      #e84057;
+    --red-dk:   #5c0a1a;
+    --bg:       #020d18;
+    --panel:    #071828;
+    --border:   #1a3a52;
+    --text:     #c8d6e0;
+    --muted:    #4a6a80;
+    --slot-h:   110px;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    overflow-x: hidden;
+  }
+
+  /* ── Background hex grid ────────────────────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(11,196,227,.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(200,155,60,.06) 0%, transparent 60%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='52'%3E%3Cpath d='M30 0 L60 15 L60 37 L30 52 L0 37 L0 15Z' fill='none' stroke='%231a3a52' stroke-width='.5'/%3E%3C/svg%3E");
+    background-size: cover, cover, 60px 52px;
+    pointer-events: none;
+  }
+
+  /* ── Layout ──────────────────────────────────────────────────────────────── */
+  .app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+  header {
+    text-align: center;
+    padding: 28px 20px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    font-weight: 900;
+    letter-spacing: .12em;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(200,155,60,.4);
+  }
+  header p {
+    font-size: .85rem;
+    color: var(--muted);
+    letter-spacing: .08em;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: 1fr 220px 1fr;
+    gap: 16px;
+    padding: 20px;
+    flex: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ── Team Columns ────────────────────────────────────────────────────────── */
+  .team-col { display: flex; flex-direction: column; gap: 10px; }
+
+  .team-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+  }
+  .team-header.blue { background: linear-gradient(90deg, var(--blue-dk), transparent); color: var(--blue); border-left: 3px solid var(--blue); }
+  .team-header.red  { background: linear-gradient(270deg, var(--red-dk), transparent); color: var(--red); border-right: 3px solid var(--red); flex-direction: row-reverse; }
+
+  /* ── Champion Slot ───────────────────────────────────────────────────────── */
+  .slot {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    height: var(--slot-h);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    position: relative;
+    transition: border-color .2s;
+  }
+  .slot.filled { border-color: rgba(200,155,60,.35); }
+  .slot.predicted { border-color: rgba(11,196,227,.5); background: rgba(11,196,227,.04); }
+
+  .slot-portrait {
+    width: 80px; height: 80px;
+    border-radius: 4px;
+    background: #0a1a28;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    font-size: .75rem;
+    letter-spacing: .05em;
+    border: 1px solid var(--border);
+  }
+  .slot-portrait img { width: 100%; height: 100%; object-fit: cover; }
+
+  .slot-info { flex: 1; min-width: 0; }
+  .slot-role {
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .slot-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--gold-lt);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .slot-name.empty { color: var(--muted); font-weight: 400; font-size: .85rem; }
+
+  .slot-controls { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+
+  .btn-sm {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .btn-predict { border-color: var(--blue); color: var(--blue); background: rgba(11,196,227,.08); }
+  .btn-predict:hover { background: rgba(11,196,227,.2); }
+  .btn-clear { border-color: var(--border); color: var(--muted); background: transparent; }
+  .btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+  /* role selector inside slot */
+  .role-select {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    background: #0a1a28;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 3px 6px;
+    cursor: pointer;
+    outline: none;
+  }
+  .role-select:focus { border-color: var(--gold); color: var(--gold-lt); }
+
+  /* ── Center Panel ────────────────────────────────────────────────────────── */
+  .center-panel {
+    display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: flex-start;
+    padding-top: 46px;
+  }
+
+  .winbar-wrap { width: 100%; }
+  .winbar-label {
+    display: flex; justify-content: space-between;
+    font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .winbar-label .bl { color: var(--blue); }
+  .winbar-label .rd { color: var(--red); }
+  .winbar {
+    width: 100%; height: 8px;
+    background: var(--red-dk);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .winbar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), #0dc4e3aa);
+    border-radius: 4px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+    width: 50%;
+  }
+
+  .btn-main {
+    font-family: 'Cinzel', serif;
+    font-size: .85rem;
+    font-weight: 700;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    padding: 11px 22px;
+    border-radius: 4px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all .2s;
+    width: 100%;
+    text-align: center;
+  }
+  .btn-reset { border-color: var(--border); color: var(--muted); background: transparent; }
+  .btn-reset:hover { border-color: var(--red); color: var(--red); background: rgba(232,64,87,.07); }
+
+  .vs-divider {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(200,155,60,.5);
+    letter-spacing: .2em;
+  }
+
+  /* ── Champion Picker Modal ───────────────────────────────────────────────── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(2,13,24,.85);
+    backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: min(600px, 95vw);
+    max-height: 80vh;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,.8);
+  }
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1rem; letter-spacing: .1em; }
+  .modal-close { background: none; border: none; color: var(--muted); font-size: 1.4rem; cursor: pointer; line-height: 1; }
+  .modal-close:hover { color: var(--red); }
+
+  .search-input {
+    width: 100%; padding: 12px 16px;
+    background: #0a1a28; border: none; border-bottom: 1px solid var(--border);
+    color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 1rem;
+    outline: none; letter-spacing: .04em;
+  }
+  .search-input::placeholder { color: var(--muted); }
+  .search-input:focus { border-bottom-color: var(--gold); }
+
+  .champ-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 8px;
+    padding: 14px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .champ-card {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 8px 4px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all .15s;
+    background: rgba(255,255,255,.02);
+  }
+  .champ-card:hover { border-color: var(--gold); background: rgba(200,155,60,.08); }
+  .champ-card.used { opacity: .28; pointer-events: none; }
+  .champ-card img {
+    width: 56px; height: 56px;
+    border-radius: 4px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+  }
+  .champ-card span {
+    font-size: .65rem; text-align: center; color: var(--text);
+    letter-spacing: .04em; line-height: 1.2;
+    max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  /* ── Recommendations Panel ───────────────────────────────────────────────── */
+  .reco-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    width: 100%;
+  }
+  .reco-title {
+    font-family: 'Cinzel', serif;
+    font-size: .75rem;
+    color: var(--gold);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .reco-list { display: flex; flex-direction: column; gap: 5px; }
+  .reco-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,.02);
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .reco-item:hover { background: rgba(200,155,60,.1); }
+  .reco-item img { width: 32px; height: 32px; border-radius: 3px; object-fit: cover; }
+  .reco-item-name { flex: 1; font-size: .82rem; font-weight: 600; color: var(--text); }
+  .reco-item-prob { font-size: .78rem; color: var(--blue); font-weight: 700; }
+
+  /* ── Loading / Toast ──────────────────────────────────────────────────────── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--panel); border: 1px solid var(--gold); color: var(--gold-lt);
+    font-family: 'Rajdhani', sans-serif; font-size: .85rem; letter-spacing: .06em;
+    padding: 10px 20px; border-radius: 4px; z-index: 200;
+    opacity: 0; transition: all .3s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Responsive ─────────────────────────────────────────────────────────── */
+  @media (max-width: 700px) {
+    .board { grid-template-columns: 1fr; }
+    .center-panel { padding-top: 0; }
+    .team-header.red { flex-direction: row; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>⚔ Draft Oracle ⚔</h1>
+    <p>League of Legends Champion Draft Predictor</p>
+  </header>
+
+  <div class="board">
+    <!-- Blue Team -->
+    <div class="team-col" id="blue-col">
+      <div class="team-header blue">🔵 Blue Team</div>
+      <!-- slots injected by JS -->
+    </div>
+
+    <!-- Center -->
+    <div class="center-panel">
+      <div class="vs-divider">VS</div>
+
+      <div class="winbar-wrap">
+        <div class="winbar-label">
+          <span class="bl" id="blue-pct">50%</span>
+          <span class="rd" id="red-pct">50%</span>
+        </div>
+        <div class="winbar"><div class="winbar-fill" id="winbar-fill"></div></div>
+      </div>
+
+      <div class="reco-panel" id="reco-panel" style="display:none">
+        <div class="reco-title" id="reco-title">Recommendations</div>
+        <div class="reco-list" id="reco-list"></div>
+      </div>
+
+      <button class="btn-main btn-reset" onclick="resetAll()">↺ Reset Draft</button>
+    </div>
+
+    <!-- Red Team -->
+    <div class="team-col" id="red-col">
+      <div class="team-header red">🔴 Red Team</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Pick a Champion</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <input class="search-input" id="search" placeholder="Search champion…" oninput="filterChamps()"/>
+    <div class="champ-grid" id="champ-grid"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+const API = "https://YOUR-APP-NAME.onrender.com"; // ← replace after deploy
+
+const ROLES = ['Top','Jungle','Mid','Bot','Support'];
+const DDRAGON = "https://ddragon.leagueoflegends.com/cdn/14.10.1";
+
+// Champion name → Data Dragon key mapping (common edge cases)
+const DDN = {
+  "MonkeyKing": "MonkeyKing",
+  "KSante":     "KSante",
+  "Belveth":    "Belveth",
+  "MasterYi":   "MasterYi",
+  "MissFortune":"MissFortune",
+  "TwistedFate":"TwistedFate",
+  "XinZhao":    "XinZhao",
+  "LeeSin":     "LeeSin",
+  "RekSai":     "RekSai",
+  "AurelionSol":"AurelionSol",
+  "JarvanIV":   "JarvanIV",
+  "KhaZix":     "Khazix",
+  "VelKoz":     "Velkoz",
+  "TahmKench":  "TahmKench",
+};
+
+function ddKey(name) {
+  const n = name.replace(/[' .\-]/g, '');
+  return DDN[n] || n;
+}
+function portrait(name) {
+  return `${DDRAGON}/img/champion/${ddKey(name)}.png`;
+}
+
+// ── State ────────────────────────────────────────────────────────────────────
+let allChampions = [];   // from API
+let state = {
+  blue: Array(5).fill(null),
+  red:  Array(5).fill(null),
+};
+let activeSlot = null;   // { team, idx }
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const r = await fetch(`${API}/champions`);
+    const d = await r.json();
+    allChampions = d.champions.sort();
+  } catch(e) {
+    showToast("⚠ Could not reach API — check your Render URL");
+    allChampions = [];
+  }
+  renderTeam('blue');
+  renderTeam('red');
+  buildChampGrid();
+}
+
+// ── Render Teams ─────────────────────────────────────────────────────────────
+function renderTeam(team) {
+  const col = document.getElementById(`${team}-col`);
+  // keep header
+  const header = col.querySelector('.team-header');
+  col.innerHTML = '';
+  col.appendChild(header);
+
+  state[team].forEach((champ, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'slot' + (champ ? ' filled' : '');
+    slot.dataset.team = team;
+    slot.dataset.idx  = i;
+
+    const portrait_div = document.createElement('div');
+    portrait_div.className = 'slot-portrait';
+    if (champ) {
+      const img = document.createElement('img');
+      img.src = portrait(champ);
+      img.onerror = () => { img.style.display='none'; };
+      portrait_div.appendChild(img);
+    } else {
+      portrait_div.textContent = '?';
+    }
+
+    const info = document.createElement('div');
+    info.className = 'slot-info';
+
+    const roleLabel = document.createElement('div');
+    roleLabel.className = 'slot-role';
+
+    const roleSelect = document.createElement('select');
+    roleSelect.className = 'role-select';
+    roleSelect.innerHTML = `<option value="">Any Role</option>` +
+      ROLES.map(r => `<option value="${r.toLowerCase()}">${r}</option>`).join('');
+    roleSelect.value = slot.dataset.role || '';
+    roleSelect.onchange = e => { slot.dataset.role = e.target.value; };
+
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'slot-name' + (champ ? '' : ' empty');
+    nameDiv.textContent = champ || 'Empty Slot';
+
+    info.appendChild(roleSelect);
+    info.appendChild(nameDiv);
+
+    const controls = document.createElement('div');
+    controls.className = 'slot-controls';
+
+    const predictBtn = document.createElement('button');
+    predictBtn.className = 'btn-sm btn-predict';
+    predictBtn.textContent = '✦ Predict';
+    predictBtn.onclick = () => predictSlot(team, i, roleSelect.value);
+
+    const pickBtn = document.createElement('button');
+    pickBtn.className = 'btn-sm btn-clear';
+    pickBtn.textContent = champ ? '✕ Clear' : '+ Pick';
+    pickBtn.onclick = () => champ ? clearSlot(team, i) : openModal(team, i);
+
+    controls.appendChild(predictBtn);
+    controls.appendChild(pickBtn);
+
+    slot.appendChild(portrait_div);
+    slot.appendChild(info);
+    slot.appendChild(controls);
+    col.appendChild(slot);
+  });
+}
+
+// ── Champion Grid (modal) ─────────────────────────────────────────────────────
+function buildChampGrid() {
+  const grid = document.getElementById('champ-grid');
+  grid.innerHTML = '';
+  const used = new Set([...state.blue, ...state.red].filter(Boolean));
+  allChampions.forEach(name => {
+    const card = document.createElement('div');
+    card.className = 'champ-card' + (used.has(name) ? ' used' : '');
+    card.dataset.name = name.toLowerCase();
+    const img = document.createElement('img');
+    img.src = portrait(name);
+    img.onerror = () => img.src = '';
+    const span = document.createElement('span');
+    span.textContent = name;
+    card.appendChild(img);
+    card.appendChild(span);
+    card.onclick = () => selectChamp(name);
+    grid.appendChild(card);
+  });
+}
+
+function filterChamps() {
+  const q = document.getElementById('search').value.toLowerCase();
+  document.querySelectorAll('.champ-card').forEach(c => {
+    c.style.display = c.dataset.name.includes(q) ? '' : 'none';
+  });
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function openModal(team, idx) {
+  activeSlot = { team, idx };
+  document.getElementById('modal-title').textContent =
+    `Pick for ${team === 'blue' ? '🔵 Blue' : '🔴 Red'} — Slot ${idx + 1}`;
+  document.getElementById('search').value = '';
+  buildChampGrid();
+  filterChamps();
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  activeSlot = null;
+}
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+function selectChamp(name) {
+  if (!activeSlot) return;
+  state[activeSlot.team][activeSlot.idx] = name;
+  closeModal();
+  renderTeam('blue');
+  renderTeam('red');
+  updateWinProb();
+}
+
+// ── Slot actions ──────────────────────────────────────────────────────────────
+function clearSlot(team, idx) {
+  state[team][idx] = null;
+  renderTeam('blue');
+  renderTeam('red');
+  updateWinProb();
+  document.getElementById('reco-panel').style.display = 'none';
+}
+
+async function predictSlot(team, idx, role) {
+  showToast("🔮 Predicting best pick…");
+  const blue = state.blue.filter(Boolean);
+  const red  = state.red.filter(Boolean);
+  try {
+    const r = await fetch(`${API}/predict`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ blue_team: blue, red_team: red, team, role: role || null })
+    });
+    const d = await r.json();
+    showRecommendations(d.recommendations, team, idx);
+  } catch(e) {
+    showToast("⚠ API error — is Render awake?");
+  }
+}
+
+function showRecommendations(recs, team, idx) {
+  const panel = document.getElementById('reco-panel');
+  const list  = document.getElementById('reco-list');
+  const title = document.getElementById('reco-title');
+  title.textContent = `Best picks for ${team.toUpperCase()} — Slot ${idx+1}`;
+  list.innerHTML = '';
+  recs.slice(0, 8).forEach(r => {
+    const item = document.createElement('div');
+    item.className = 'reco-item';
+    const img = document.createElement('img');
+    img.src = portrait(r.champion);
+    img.onerror = () => img.src = '';
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'reco-item-name';
+    nameSpan.textContent = r.champion;
+    const prob = document.createElement('span');
+    prob.className = 'reco-item-prob';
+    prob.textContent = (r.win_prob * 100).toFixed(1) + '%';
+    item.appendChild(img);
+    item.appendChild(nameSpan);
+    item.appendChild(prob);
+    item.onclick = () => {
+      state[team][idx] = r.champion;
+      renderTeam('blue');
+      renderTeam('red');
+      updateWinProb();
+      panel.style.display = 'none';
+    };
+    list.appendChild(item);
+  });
+  panel.style.display = '';
+}
+
+// ── Win Probability ───────────────────────────────────────────────────────────
+async function updateWinProb() {
+  const blue = state.blue.filter(Boolean);
+  const red  = state.red.filter(Boolean);
+  if (!blue.length && !red.length) {
+    setWinBar(0.5); return;
+  }
+  try {
+    const r = await fetch(`${API}/winprob`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ blue_team: blue, red_team: red })
+    });
+    const d = await r.json();
+    setWinBar(d.blue_win_prob);
+  } catch(e) { /* silent */ }
+}
+
+function setWinBar(p) {
+  document.getElementById('winbar-fill').style.width = (p * 100) + '%';
+  document.getElementById('blue-pct').textContent = (p * 100).toFixed(1) + '%';
+  document.getElementById('red-pct').textContent  = ((1-p) * 100).toFixed(1) + '%';
+}
+
+// ── Reset ─────────────────────────────────────────────────────────────────────
+function resetAll() {
+  state = { blue: Array(5).fill(null), red: Array(5).fill(null) };
+  renderTeam('blue');
+  renderTeam('red');
+  setWinBar(0.5);
+  document.getElementById('reco-panel').style.display = 'none';
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+init();
+</script>
+</body>
+</html>
