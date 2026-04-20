@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>LOL Draft</title>
+<link rel="icon" href="data:,">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -13,8 +14,10 @@ html,body{height:100%;background:#000;color:#ccc;font-family:'Rajdhani',sans-ser
 header{text-align:center;margin-bottom:10px;flex-shrink:0}
 header h1{font-size:2rem;font-weight:700;color:#fff;letter-spacing:.28em}
 header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:uppercase}
-.board{display:grid;grid-template-columns:1fr 220px 1fr;gap:20px;width:100%;max-width:1300px;flex:1;min-height:0}
-.team-col{display:flex;flex-direction:column;gap:0;min-height:0}
+
+.board{display:grid;grid-template-columns:1fr 230px 1fr;gap:20px;width:100%;max-width:1300px;flex:1;min-height:0}
+
+.team-col{display:flex;flex-direction:column;min-height:0}
 .team-label{font-size:.78rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:7px 12px;border-radius:3px;margin-bottom:6px;flex-shrink:0}
 .team-label.blue{color:var(--blue);border-left:3px solid var(--blue);background:rgba(11,196,227,.07)}
 .team-label.red{color:var(--red);border-right:3px solid var(--red);background:rgba(232,64,87,.07);text-align:right}
@@ -23,15 +26,16 @@ header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:upperca
 .champ-frame.active{border-color:#fff;box-shadow:0 0 0 1px #fff,0 0 16px rgba(255,255,255,.14)}
 .champ-frame.filled{border-color:#242424}
 .champ-frame.filled.active{border-color:#fff;box-shadow:0 0 0 1px #fff,0 0 16px rgba(255,255,255,.14)}
-.pick-badge{font-size:.56rem;font-weight:700;color:#333;letter-spacing:.04em;flex-shrink:0;width:18px;text-align:center}
+.pick-badge{font-size:.56rem;font-weight:700;color:#333;flex-shrink:0;width:18px;text-align:center}
 .frame-img{height:100%;aspect-ratio:1/1;border-radius:3px;background:#111;border:1px solid #1e1e1e;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#1e1e1e;font-size:1.4rem;flex-shrink:0}
 .frame-img img{width:100%;height:100%;object-fit:cover;object-position:top}
 .frame-name{font-size:.82rem;font-weight:600;color:#bbb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
 .frame-name.empty{color:#252525;font-size:.74rem}
 .red .champ-frame{flex-direction:row-reverse}
-.red .pick-badge{text-align:center}
 .red .frame-name{text-align:right}
-.center{display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:36px;min-height:0}
+
+/* CENTER — scrollable internally */
+.center{display:flex;flex-direction:column;align-items:center;gap:9px;padding-top:36px;min-height:0;overflow-y:auto;overflow-x:hidden}
 .vs{font-size:1.4rem;font-weight:700;color:#1a1a1a;letter-spacing:.2em;flex-shrink:0}
 .winbar-wrap{width:100%;flex-shrink:0}
 .winbar-pcts{display:flex;justify-content:space-between;font-size:.72rem;letter-spacing:.05em;margin-bottom:4px}
@@ -39,11 +43,13 @@ header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:upperca
 .winbar{height:6px;background:#180a0e;border-radius:3px;overflow:hidden;border:1px solid #1a1a1a}
 .winbar-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .5s ease;width:50%}
 .draft-info{font-size:.72rem;color:#3a3a3a;letter-spacing:.05em;text-align:center;flex-shrink:0}
+
 .role-wrap{width:100%;flex-shrink:0}
 .role-wrap label{display:block;font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:#555;margin-bottom:4px;text-align:center}
 .role-sel{width:100%;font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:#181818;color:#ddd;border:2px solid #333;border-radius:4px;padding:10px 12px;cursor:pointer;outline:none}
 .role-sel:focus{border-color:var(--gold);color:var(--gold-lt)}
 .role-sel option{background:#181818}
+
 .btn{font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:11px 0;width:100%;border-radius:4px;border:2px solid;cursor:pointer;transition:all .15s;text-align:center;flex-shrink:0}
 .btn-add{border-color:var(--blue);color:var(--blue);background:rgba(11,196,227,.07)}
 .btn-add:hover{background:rgba(11,196,227,.2)}
@@ -51,14 +57,23 @@ header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:upperca
 .btn-predict:hover{background:rgba(200,155,60,.2)}
 .btn-reset{border-color:#1a1a1a;color:#333;background:transparent;font-size:.72rem;padding:8px 0}
 .btn-reset:hover{border-color:var(--red);color:var(--red)}
-.reco{width:100%;background:#0a0a0a;border:1px solid #222;border-radius:4px;padding:9px;display:none;flex-shrink:0}
-.reco-title{font-size:.64rem;color:var(--gold);letter-spacing:.1em;text-align:center;margin-bottom:7px;text-transform:uppercase}
-.reco-list{display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto}
-.reco-item{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:3px;background:rgba(255,255,255,.02);cursor:pointer;transition:background .12s}
-.reco-item:hover{background:rgba(200,155,60,.1)}
-.reco-item img{width:30px;height:30px;border-radius:3px;object-fit:cover;object-position:top;border:1px solid #222}
-.reco-name{flex:1;font-size:.82rem;font-weight:600}
-.reco-prob{font-size:.76rem;color:var(--blue);font-weight:700}
+
+/* RECO — scrollable list, no max height restriction */
+.reco{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:5px;overflow:hidden;flex-shrink:0}
+.reco-header{padding:8px 10px;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;justify-content:space-between}
+.reco-title{font-size:.64rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase}
+.reco-close{background:none;border:none;color:#444;cursor:pointer;font-size:1rem;line-height:1}
+.reco-close:hover{color:var(--red)}
+.reco-list{display:flex;flex-direction:column}
+.reco-item{display:flex;align-items:center;gap:9px;padding:6px 10px;border-bottom:1px solid #111;cursor:pointer;transition:background .12s}
+.reco-item:last-child{border-bottom:none}
+.reco-item:hover{background:rgba(200,155,60,.09)}
+.reco-rank{font-size:.62rem;font-weight:700;color:#333;width:16px;text-align:center;flex-shrink:0}
+.reco-img{width:32px;height:32px;border-radius:3px;object-fit:cover;object-position:top;border:1px solid #222;flex-shrink:0}
+.reco-name{flex:1;font-size:.84rem;font-weight:600;color:#ccc}
+.reco-prob{font-size:.78rem;font-weight:700;color:var(--blue);flex-shrink:0}
+
+/* MODAL */
 .overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.93);backdrop-filter:blur(5px);align-items:center;justify-content:center}
 .overlay.open{display:flex}
 .modal{background:#0d0d0d;border:1px solid #222;border-radius:7px;width:min(680px,96vw);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.95)}
@@ -75,6 +90,7 @@ header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:upperca
 .champ-card.used{opacity:.15;pointer-events:none}
 .champ-card img{width:58px;height:58px;border-radius:4px;object-fit:cover;object-position:top;border:1px solid #1e1e1e}
 .champ-card span{font-size:.6rem;text-align:center;color:#888;max-width:82px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(12px);background:#111;border:1px solid var(--gold);color:var(--gold-lt);font-family:'Rajdhani',sans-serif;font-size:.8rem;padding:8px 18px;border-radius:3px;z-index:200;opacity:0;transition:all .3s;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
@@ -83,11 +99,11 @@ header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:upperca
 <div class="app">
   <header><h1>LOL</h1><p>Champion Draft Predictor</p></header>
   <div class="board">
-    <div class="team-col blue" id="blue-col">
+    <div class="team-col blue">
       <div class="team-label blue">Blue Team</div>
       <div class="frames" id="blue-frames"></div>
     </div>
-    <div class="center">
+    <div class="center" id="center">
       <div class="vs">VS</div>
       <div class="winbar-wrap">
         <div class="winbar-pcts"><span class="b" id="bpct">50%</span><span class="r" id="rpct">50%</span></div>
@@ -107,13 +123,16 @@ header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:upperca
       </div>
       <button class="btn btn-add" onclick="openModal()">+ Add Champion</button>
       <button class="btn btn-predict" onclick="predict()">Predict Best Pick</button>
-      <div class="reco" id="reco">
-        <div class="reco-title" id="reco-title">Recommendations</div>
+      <div class="reco" id="reco" style="display:none">
+        <div class="reco-header">
+          <span class="reco-title" id="reco-title">Best Picks</span>
+          <button class="reco-close" onclick="document.getElementById('reco').style.display='none'">×</button>
+        </div>
         <div class="reco-list" id="reco-list"></div>
       </div>
       <button class="btn btn-reset" onclick="resetAll()">Reset Draft</button>
     </div>
-    <div class="team-col red" id="red-col">
+    <div class="team-col red">
       <div class="team-label red">Red Team</div>
       <div class="frames" id="red-frames"></div>
     </div>
@@ -135,10 +154,8 @@ header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:upperca
 <script>
 const API="https://machine-learning-spring-2026-final.onrender.com";
 const DD="https://ddragon.leagueoflegends.com/cdn/15.8.1/img/champion";
-
 const DRAFT_ORDER=[['blue',0],['red',0],['red',1],['blue',1],['blue',2],['red',2],['red',3],['blue',3],['blue',4],['red',4]];
 
-// Role pools use the exact normalized names the API returns
 const ROLE_POOL={
   top:['Aatrox','Camille','Darius','Fiora','Gangplank','Garen','Gnar','Gragas','Gwen','Illaoi','Irelia','Jax','Jayce','Kayle','Kennen','Kled','Malphite','Maokai','Mordekaiser','Nasus','Ornn','Pantheon','Poppy','Quinn','Renekton','Riven','Rumble','Sett','Shen','Shyvana','Singed','Sion','Teemo','Tryndamere','Urgot','Vayne','Vladimir','Volibear','Warwick','Yorick','Ambessa','KSante','Olaf'],
   jungle:['Amumu','Belveth','Briar','Darius','Diana','Ekko','Elise','Evelynn','Fiddlesticks','Gragas','Graves','Hecarim','Ivern','JarvanIV','Kayn','Khazix','Kindred','Kled','LeeSin','Lillia','MasterYi','MonkeyKing','Mordekaiser','Nidalee','Nocturne','Nunu','Olaf','Pantheon','Poppy','Rammus','RekSai','Rengar','Sejuani','Shaco','Shyvana','Skarner','Sylas','Taliyah','Trundle','Udyr','Vi','Viego','Volibear','Warwick','XinZhao','Zac'],
@@ -147,33 +164,14 @@ const ROLE_POOL={
   support:['Alistar','Bard','Blitzcrank','Brand','Braum','Janna','Karma','Lulu','Lux','Maokai','Milio','Morgana','Nami','Nautilus','Neeko','Pyke','Rakan','Rell','Renata','Senna','Seraphine','Shaco','Sona','Soraka','Swain','TahmKench','Taric','Thresh','Velkoz','Xerath','Yuumi','Zilean','Zyra','Zoe','Leona','Galio','Heimerdinger'],
 };
 
-// DD image key — maps normalized API name to Data Dragon filename
-const DD_KEY={
-  AurelionSol:'AurelionSol',Belveth:'Belveth',Chogath:'Chogath',
-  DrMundo:'DrMundo',JarvanIV:'JarvanIV',Kaisa:'Kaisa',
-  KSante:'KSante',Khazix:'Khazix',KogMaw:'KogMaw',
-  LeeSin:'LeeSin',MasterYi:'MasterYi',Mel:'Mel',
-  MissFortune:'MissFortune',MonkeyKing:'MonkeyKing',Naafiri:'Naafiri',
-  RekSai:'RekSai',TahmKench:'TahmKench',TwistedFate:'TwistedFate',
-  Velkoz:'Velkoz',XinZhao:'XinZhao',Yunara:'Yunara',Zaahen:'Zaahen',
-  Aurora:'Aurora',Ambessa:'Ambessa',Hwei:'Hwei',Smolder:'Smolder',
-  Nilah:'Nilah',Briar:'Briar',Milio:'Milio',
-};
+const DD_KEY={AurelionSol:'AurelionSol',Belveth:'Belveth',Chogath:'Chogath',DrMundo:'DrMundo',JarvanIV:'JarvanIV',Kaisa:'Kaisa',KSante:'KSante',Khazix:'Khazix',KogMaw:'KogMaw',LeeSin:'LeeSin',MasterYi:'MasterYi',Mel:'Mel',MissFortune:'MissFortune',MonkeyKing:'MonkeyKing',Naafiri:'Naafiri',RekSai:'RekSai',TahmKench:'TahmKench',TwistedFate:'TwistedFate',Velkoz:'Velkoz',XinZhao:'XinZhao',Yunara:'Yunara',Zaahen:'Zaahen',Aurora:'Aurora',Ambessa:'Ambessa',Hwei:'Hwei',Smolder:'Smolder',Nilah:'Nilah',Briar:'Briar',Milio:'Milio'};
 function ddImg(n){return `${DD}/${DD_KEY[n]||n}.png`;}
 
-// Display name for normalized API name
-const DISPLAY={
-  AurelionSol:'Aurelion Sol',Belveth:"Bel'Veth",Chogath:"Cho'Gath",
-  DrMundo:'Dr. Mundo',JarvanIV:'Jarvan IV',KSante:"K'Sante",
-  Khazix:"Kha'Zix",KogMaw:"Kog'Maw",LeeSin:'Lee Sin',
-  MasterYi:'Master Yi',MissFortune:'Miss Fortune',MonkeyKing:'Wukong',
-  RekSai:"Rek'Sai",TahmKench:'Tahm Kench',TwistedFate:'Twisted Fate',
-  Velkoz:"Vel'Koz",XinZhao:'Xin Zhao',
-};
+const DISPLAY={AurelionSol:'Aurelion Sol',Belveth:"Bel'Veth",Chogath:"Cho'Gath",DrMundo:'Dr. Mundo',JarvanIV:'Jarvan IV',KSante:"K'Sante",Khazix:"Kha'Zix",KogMaw:"Kog'Maw",LeeSin:'Lee Sin',MasterYi:'Master Yi',MissFortune:'Miss Fortune',MonkeyKing:'Wukong',RekSai:"Rek'Sai",TahmKench:'Tahm Kench',TwistedFate:'Twisted Fate',Velkoz:"Vel'Koz",XinZhao:'Xin Zhao'};
 function display(n){return DISPLAY[n]||n;}
 
-let allChampions=[]; // normalized names from API
-let slots={blue:Array(5).fill(null),red:Array(5).fill(null)}; // store normalized names
+let allChampions=[];
+let slots={blue:Array(5).fill(null),red:Array(5).fill(null)};
 let pickIndex=0;
 
 async function init(){
@@ -185,31 +183,23 @@ async function init(){
 }
 
 function currentRole(){return document.getElementById('cur-role').value;}
-
 function render(){renderTeam('blue');renderTeam('red');updateDraftInfo();}
 
 function renderTeam(team){
   const container=document.getElementById(`${team}-frames`);
   container.innerHTML='';
   for(let i=0;i<5;i++){
-    const champ=slots[team][i]; // normalized
+    const champ=slots[team][i];
     const orderIdx=DRAFT_ORDER.findIndex(([t,s])=>t===team&&s===i);
     const isActive=pickIndex<10&&DRAFT_ORDER[pickIndex][0]===team&&DRAFT_ORDER[pickIndex][1]===i;
     const frame=document.createElement('div');
     frame.className='champ-frame'+(champ?' filled':'')+(isActive?' active':'');
-
     const badge=document.createElement('div');badge.className='pick-badge';badge.textContent=`#${orderIdx+1}`;
     frame.appendChild(badge);
-
     const pic=document.createElement('div');pic.className='frame-img';
-    if(champ){
-      const im=document.createElement('img');
-      im.src=ddImg(champ);
-      im.onerror=()=>{im.style.display='none';pic.textContent='?';};
-      pic.appendChild(im);
-    }else{pic.textContent='?';}
+    if(champ){const im=document.createElement('img');im.src=ddImg(champ);im.onerror=()=>{im.style.display='none';pic.textContent='?';};pic.appendChild(im);}
+    else{pic.textContent='?';}
     frame.appendChild(pic);
-
     const nm=document.createElement('div');nm.className='frame-name'+(champ?'':' empty');
     nm.textContent=champ?display(champ):(isActive?'Picking…':'—');
     frame.appendChild(nm);
@@ -230,8 +220,7 @@ function openModal(){
   const role=currentRole();
   document.getElementById('modal-title').textContent=`Pick ${pickIndex+1} — ${team==='blue'?'Blue':'Red'}${role?' · '+role.charAt(0).toUpperCase()+role.slice(1):''}`;
   document.getElementById('search').value='';
-  const pool=role&&ROLE_POOL[role]?ROLE_POOL[role]:null;
-  buildGrid(pool);
+  buildGrid(role&&ROLE_POOL[role]?ROLE_POOL[role]:null);
   document.getElementById('overlay').classList.add('open');
 }
 function closeModal(){document.getElementById('overlay').classList.remove('open');}
@@ -257,7 +246,7 @@ function filterGrid(){
   document.querySelectorAll('.champ-card').forEach(c=>c.style.display=c.dataset.n.includes(q)?'':'none');
 }
 
-function pick(name){ // name is normalized
+function pick(name){
   if(pickIndex>=10)return;
   const[team,idx]=DRAFT_ORDER[pickIndex];
   slots[team][idx]=name;
@@ -265,8 +254,8 @@ function pick(name){ // name is normalized
   pickIndex++;
   while(pickIndex<10){const[t,i]=DRAFT_ORDER[pickIndex];if(!slots[t][i])break;pickIndex++;}
   document.getElementById('cur-role').value='';
-  render();updateWinProb();
   document.getElementById('reco').style.display='none';
+  render();updateWinProb();
 }
 
 async function predict(){
@@ -277,35 +266,34 @@ async function predict(){
   try{
     const resp=await fetch(`${API}/predict`,{
       method:'POST',headers:{'Content-Type':'application/json'},
-      // send normalized names directly — this is what the model expects
-      body:JSON.stringify({
-        blue_team:slots.blue.filter(Boolean),
-        red_team:slots.red.filter(Boolean),
-        team,role
-      })
+      body:JSON.stringify({blue_team:slots.blue.filter(Boolean),red_team:slots.red.filter(Boolean),team,role})
     });
-    if(!resp.ok){const txt=await resp.text();toast('Error '+resp.status+': '+txt.slice(0,80));return;}
+    if(!resp.ok){toast('Error '+resp.status);return;}
     const d=await resp.json();
     if(!d.recommendations||!d.recommendations.length){toast('No recommendations returned');return;}
-    showReco(d.recommendations,team,idx);
+    showReco(d.recommendations,team,idx,role);
   }catch(e){toast('API unreachable — wait 30s and retry');}
 }
 
-function showReco(recs,team,idx){
+function showReco(recs,team,idx,role){
   const panel=document.getElementById('reco');
   const list=document.getElementById('reco-list');
-  document.getElementById('reco-title').textContent=`Best picks — ${team==='blue'?'Blue':'Red'} Pick ${idx+1}`;
+  const roleLabel=role?` · ${role.charAt(0).toUpperCase()+role.slice(1)}`:'';
+  document.getElementById('reco-title').textContent=`Best Picks — ${team==='blue'?'Blue':'Red'}${roleLabel}`;
   list.innerHTML='';
-  recs.slice(0,8).forEach(r=>{
+  recs.forEach((r,i)=>{
     const item=document.createElement('div');item.className='reco-item';
-    const im=document.createElement('img');im.src=ddImg(r.champion);im.onerror=()=>im.src='';
+    const rank=document.createElement('span');rank.className='reco-rank';rank.textContent=`${i+1}`;
+    const im=document.createElement('img');im.className='reco-img';im.src=ddImg(r.champion);im.onerror=()=>im.src='';
     const nm=document.createElement('span');nm.className='reco-name';nm.textContent=display(r.champion);
     const pb=document.createElement('span');pb.className='reco-prob';pb.textContent=(r.win_prob*100).toFixed(1)+'%';
-    item.appendChild(im);item.appendChild(nm);item.appendChild(pb);
+    item.appendChild(rank);item.appendChild(im);item.appendChild(nm);item.appendChild(pb);
     item.onclick=()=>{pick(r.champion);panel.style.display='none';};
     list.appendChild(item);
   });
-  panel.style.display='';
+  panel.style.display='block';
+  // scroll center panel to show reco
+  document.getElementById('center').scrollTop=9999;
 }
 
 async function updateWinProb(){
@@ -325,7 +313,8 @@ function setBar(p){
 function resetAll(){
   slots={blue:Array(5).fill(null),red:Array(5).fill(null)};
   pickIndex=0;document.getElementById('cur-role').value='';
-  render();setBar(0.5);document.getElementById('reco').style.display='none';
+  document.getElementById('reco').style.display='none';
+  render();setBar(0.5);
 }
 
 let tt;
