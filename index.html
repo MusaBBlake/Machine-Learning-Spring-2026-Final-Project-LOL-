@@ -9,15 +9,15 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--blue:#0bc4e3;--red:#e84057;--gold:#c89b3c;--gold-lt:#f0d475;}
-html,body{height:100%;background:#000;color:#ccc;font-family:'Rajdhani',sans-serif;overflow:hidden}
-.app{height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 20px}
+html,body{height:100%;background:#000;color:#ccc;font-family:'Rajdhani',sans-serif;}
+.app{height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 20px;overflow:hidden}
 header{text-align:center;margin-bottom:10px;flex-shrink:0}
 header h1{font-size:2rem;font-weight:700;color:#fff;letter-spacing:.28em}
 header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:uppercase}
 
-.board{display:grid;grid-template-columns:1fr 230px 1fr;gap:20px;width:100%;max-width:1300px;flex:1;min-height:0}
+.board{display:grid;grid-template-columns:1fr 230px 1fr;gap:20px;width:100%;max-width:1300px;flex:1;min-height:0;overflow:hidden}
 
-.team-col{display:flex;flex-direction:column;min-height:0}
+.team-col{display:flex;flex-direction:column;min-height:0;overflow:hidden}
 .team-label{font-size:.78rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:7px 12px;border-radius:3px;margin-bottom:6px;flex-shrink:0}
 .team-label.blue{color:var(--blue);border-left:3px solid var(--blue);background:rgba(11,196,227,.07)}
 .team-label.red{color:var(--red);border-right:3px solid var(--red);background:rgba(232,64,87,.07);text-align:right}
@@ -34,9 +34,9 @@ header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:upperca
 .red .champ-frame{flex-direction:row-reverse}
 .red .frame-name{text-align:right}
 
-/* CENTER — scrollable internally */
-.center{display:flex;flex-direction:column;align-items:center;gap:9px;padding-top:36px;min-height:0;overflow-y:auto;overflow-x:hidden}
-.vs{font-size:1.4rem;font-weight:700;color:#1a1a1a;letter-spacing:.2em;flex-shrink:0}
+/* CENTER — fixed layout, reco scrolls inside */
+.center{display:flex;flex-direction:column;align-items:stretch;gap:9px;padding-top:36px;min-height:0;overflow:hidden}
+.vs{font-size:1.4rem;font-weight:700;color:#1a1a1a;letter-spacing:.2em;flex-shrink:0;text-align:center}
 .winbar-wrap{width:100%;flex-shrink:0}
 .winbar-pcts{display:flex;justify-content:space-between;font-size:.72rem;letter-spacing:.05em;margin-bottom:4px}
 .b{color:var(--blue)}.r{color:var(--red)}
@@ -58,17 +58,18 @@ header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:upperca
 .btn-reset{border-color:#1a1a1a;color:#333;background:transparent;font-size:.72rem;padding:8px 0}
 .btn-reset:hover{border-color:var(--red);color:var(--red)}
 
-/* RECO — scrollable list, no max height restriction */
-.reco{width:100%;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:5px;overflow:hidden;flex-shrink:0}
-.reco-header{padding:8px 10px;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;justify-content:space-between}
+/* RECO — takes remaining space and scrolls */
+.reco{display:none;flex-direction:column;flex:1;min-height:0;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:5px;overflow:hidden}
+.reco.visible{display:flex}
+.reco-header{padding:8px 10px;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .reco-title{font-size:.64rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase}
-.reco-close{background:none;border:none;color:#444;cursor:pointer;font-size:1rem;line-height:1}
+.reco-close{background:none;border:none;color:#444;cursor:pointer;font-size:1rem;line-height:1;padding:0 2px}
 .reco-close:hover{color:var(--red)}
-.reco-list{display:flex;flex-direction:column}
-.reco-item{display:flex;align-items:center;gap:9px;padding:6px 10px;border-bottom:1px solid #111;cursor:pointer;transition:background .12s}
+.reco-list{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.reco-item{display:flex;align-items:center;gap:9px;padding:6px 10px;border-bottom:1px solid #111;cursor:pointer;transition:background .12s;flex-shrink:0}
 .reco-item:last-child{border-bottom:none}
 .reco-item:hover{background:rgba(200,155,60,.09)}
-.reco-rank{font-size:.62rem;font-weight:700;color:#333;width:16px;text-align:center;flex-shrink:0}
+.reco-rank{font-size:.62rem;font-weight:700;color:#333;width:20px;text-align:center;flex-shrink:0}
 .reco-img{width:32px;height:32px;border-radius:3px;object-fit:cover;object-position:top;border:1px solid #222;flex-shrink:0}
 .reco-name{flex:1;font-size:.84rem;font-weight:600;color:#ccc}
 .reco-prob{font-size:.78rem;font-weight:700;color:var(--blue);flex-shrink:0}
@@ -103,7 +104,7 @@ header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:upperca
       <div class="team-label blue">Blue Team</div>
       <div class="frames" id="blue-frames"></div>
     </div>
-    <div class="center" id="center">
+    <div class="center">
       <div class="vs">VS</div>
       <div class="winbar-wrap">
         <div class="winbar-pcts"><span class="b" id="bpct">50%</span><span class="r" id="rpct">50%</span></div>
@@ -123,14 +124,14 @@ header p{font-size:.68rem;color:#444;letter-spacing:.12em;text-transform:upperca
       </div>
       <button class="btn btn-add" onclick="openModal()">+ Add Champion</button>
       <button class="btn btn-predict" onclick="predict()">Predict Best Pick</button>
-      <div class="reco" id="reco" style="display:none">
+      <div class="reco" id="reco">
         <div class="reco-header">
           <span class="reco-title" id="reco-title">Best Picks</span>
-          <button class="reco-close" onclick="document.getElementById('reco').style.display='none'">×</button>
+          <button class="reco-close" onclick="closeReco()">×</button>
         </div>
         <div class="reco-list" id="reco-list"></div>
       </div>
-      <button class="btn btn-reset" onclick="resetAll()">Reset Draft</button>
+      <button class="btn btn-reset" onclick="resetAll()" style="flex-shrink:0;margin-top:auto">Reset Draft</button>
     </div>
     <div class="team-col red">
       <div class="team-label red">Red Team</div>
@@ -232,7 +233,7 @@ function buildGrid(pool){
   const grid=document.getElementById('champ-grid');grid.innerHTML='';
   source.forEach(name=>{
     const card=document.createElement('div');
-    card.className='champ-card'+(used.has(name)?' used':'');
+    card.className='champ-card';
     card.dataset.n=display(name).toLowerCase();
     const im=document.createElement('img');im.src=ddImg(name);im.onerror=()=>{im.style.display='none';};
     const sp=document.createElement('span');sp.textContent=display(name);
@@ -251,10 +252,10 @@ function pick(name){
   const[team,idx]=DRAFT_ORDER[pickIndex];
   slots[team][idx]=name;
   closeModal();
+  closeReco();
   pickIndex++;
   while(pickIndex<10){const[t,i]=DRAFT_ORDER[pickIndex];if(!slots[t][i])break;pickIndex++;}
   document.getElementById('cur-role').value='';
-  document.getElementById('reco').style.display='none';
   render();updateWinProb();
 }
 
@@ -262,11 +263,18 @@ async function predict(){
   if(pickIndex>=10){toast('Draft complete — reset to start over');return;}
   const[team,idx]=DRAFT_ORDER[pickIndex];
   const role=currentRole()||null;
+  // require role selection for full pool predict
   toast('Predicting…');
   try{
+    // request all champions for the role (top_n=999)
     const resp=await fetch(`${API}/predict`,{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({blue_team:slots.blue.filter(Boolean),red_team:slots.red.filter(Boolean),team,role})
+      body:JSON.stringify({
+        blue_team:slots.blue.filter(Boolean),
+        red_team:slots.red.filter(Boolean),
+        team, role,
+        top_n: 999
+      })
     });
     if(!resp.ok){toast('Error '+resp.status);return;}
     const d=await resp.json();
@@ -278,22 +286,24 @@ async function predict(){
 function showReco(recs,team,idx,role){
   const panel=document.getElementById('reco');
   const list=document.getElementById('reco-list');
-  const roleLabel=role?` · ${role.charAt(0).toUpperCase()+role.slice(1)}`:'';
+  const roleLabel=role?` · ${role.charAt(0).toUpperCase()+role.slice(1)}`:' · All Roles';
   document.getElementById('reco-title').textContent=`Best Picks — ${team==='blue'?'Blue':'Red'}${roleLabel}`;
   list.innerHTML='';
   recs.forEach((r,i)=>{
     const item=document.createElement('div');item.className='reco-item';
-    const rank=document.createElement('span');rank.className='reco-rank';rank.textContent=`${i+1}`;
+    const rank=document.createElement('span');rank.className='reco-rank';rank.textContent=i+1;
     const im=document.createElement('img');im.className='reco-img';im.src=ddImg(r.champion);im.onerror=()=>im.src='';
     const nm=document.createElement('span');nm.className='reco-name';nm.textContent=display(r.champion);
     const pb=document.createElement('span');pb.className='reco-prob';pb.textContent=(r.win_prob*100).toFixed(1)+'%';
     item.appendChild(rank);item.appendChild(im);item.appendChild(nm);item.appendChild(pb);
-    item.onclick=()=>{pick(r.champion);panel.style.display='none';};
+    item.onclick=()=>pick(r.champion);
     list.appendChild(item);
   });
-  panel.style.display='block';
-  // scroll center panel to show reco
-  document.getElementById('center').scrollTop=9999;
+  panel.classList.add('visible');
+}
+
+function closeReco(){
+  document.getElementById('reco').classList.remove('visible');
 }
 
 async function updateWinProb(){
@@ -313,13 +323,14 @@ function setBar(p){
 function resetAll(){
   slots={blue:Array(5).fill(null),red:Array(5).fill(null)};
   pickIndex=0;document.getElementById('cur-role').value='';
-  document.getElementById('reco').style.display='none';
-  render();setBar(0.5);
+  closeReco();render();setBar(0.5);
 }
 
 let tt;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),5000);}
 
+// ping Render every 4 min to prevent sleep
+setInterval(()=>fetch(API+'/health').catch(()=>{}), 240000);
 init();
 </script>
 </body>
