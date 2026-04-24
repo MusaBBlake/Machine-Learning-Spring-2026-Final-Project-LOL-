@@ -99,7 +99,9 @@ header p{font-size:.7rem;color:var(--text3);letter-spacing:.18em;text-transform:
 .reco-rank{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;color:var(--text3);width:22px;text-align:center;flex-shrink:0}
 .reco-img{width:34px;height:34px;border-radius:3px;object-fit:cover;object-position:top;border:1px solid var(--border2);flex-shrink:0}
 .reco-name{flex:1;font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:600;color:var(--text);letter-spacing:.04em}
-.reco-prob{font-family:'Barlow Condensed',sans-serif;font-size:.85rem;font-weight:700;color:var(--blue);flex-shrink:0}
+.reco-prob{font-family:'Barlow Condensed',sans-serif;font-size:.85rem;font-weight:700;flex-shrink:0}
+.reco-prob.good{color:var(--blue)}
+.reco-prob.bad{color:var(--red)}
 
 /* MODAL */
 .overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(5,8,12,.92);backdrop-filter:blur(8px);align-items:center;justify-content:center}
@@ -212,7 +214,7 @@ header p{font-size:.7rem;color:var(--text3);letter-spacing:.18em;text-transform:
 
 <script>
 const API="https://machine-learning-spring-2026-final.onrender.com";
-const DD="https://ddragon.leagueoflegends.com/cdn/15.8.1/img/champion";
+const DD="https://ddragon.leagueoflegends.com/cdn/16.8.1/img/champion";
 const DRAFT_ORDER=[['blue',0],['red',0],['red',1],['blue',1],['blue',2],['red',2],['red',3],['blue',3],['blue',4],['red',4]];
 
 const ROLE_POOL={
@@ -232,6 +234,7 @@ function display(n){return DISPLAY[n]||n;}
 let allChampions=[];
 let slots={blue:Array(5).fill(null),red:Array(5).fill(null)};
 let pickIndex=0;
+let predictController=null;
 
 async function init(){
   const banner=document.getElementById('wake-banner');
@@ -320,6 +323,7 @@ function filterGrid(){
 
 function pick(name){
   if(pickIndex>=10)return;
+  if(predictController){predictController.abort();predictController=null;}
   const[team,idx]=DRAFT_ORDER[pickIndex];
   slots[team][idx]=name;
   closeModal();
@@ -337,9 +341,12 @@ async function predict(){
   const btn=document.querySelector('.btn-predict');
   btn.innerHTML='<span class="spinner"></span>Predicting…';
   btn.classList.add('btn-loading');
+  if(predictController) predictController.abort();
+  predictController=new AbortController();
   try{
     const resp=await fetch(`${API}/predict`,{
       method:'POST',headers:{'Content-Type':'application/json'},
+      signal:predictController.signal,
       body:JSON.stringify({
         blue_team:slots.blue.filter(Boolean),
         red_team:slots.red.filter(Boolean),
@@ -351,7 +358,10 @@ async function predict(){
     const d=await resp.json();
     if(!d.recommendations||!d.recommendations.length){toast('No recommendations returned');return;}
     showReco(d.recommendations,team,idx,role);
-  }catch(e){toast('API unreachable — wait 30s and retry');}
+  }catch(e){
+    if(e.name==='AbortError') return;
+    toast('API unreachable — wait 30s and retry');
+  }
   finally{
     btn.innerHTML='Predict Best Pick';
     btn.classList.remove('btn-loading');
@@ -369,7 +379,7 @@ function showReco(recs,team,idx,role){
     const rank=document.createElement('span');rank.className='reco-rank';rank.textContent=i+1;
     const im=document.createElement('img');im.className='reco-img';im.src=ddImg(r.champion);im.onerror=()=>im.src='';
     const nm=document.createElement('span');nm.className='reco-name';nm.textContent=display(r.champion);
-    const pb=document.createElement('span');pb.className='reco-prob';pb.textContent=(r.win_prob*100).toFixed(1)+'%';
+    const pb=document.createElement('span');pb.className='reco-prob '+(r.win_prob>=0.5?'good':'bad');pb.textContent=(r.win_prob*100).toFixed(1)+'%';
     item.appendChild(rank);item.appendChild(im);item.appendChild(nm);item.appendChild(pb);
     item.onclick=()=>pick(r.champion);
     list.appendChild(item);
@@ -396,6 +406,7 @@ function setBar(p){
 }
 
 function resetAll(){
+  if(predictController){predictController.abort();predictController=null;}
   slots={blue:Array(5).fill(null),red:Array(5).fill(null)};
   pickIndex=0;document.getElementById('cur-role').value='';
   closeReco();render();setBar(0.5);
