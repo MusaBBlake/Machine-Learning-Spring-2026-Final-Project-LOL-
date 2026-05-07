@@ -2,7 +2,7 @@
 
 A machine learning project that predicts League of Legends match outcomes and explores champion data using models trained on historical match data. Built as a final project for our Spring 2026 Machine Learning course.
 
-kaggle data: https://www.kaggle.com/datasets/nathansmallcalder/lol-match-history-and-summoner-data-80k-matches
+***kaggle data:*** https://www.kaggle.com/datasets/nathansmallcalder/lol-match-history-and-summoner-data-80k-matches
 
 ## Overview
 
