@@ -10,8 +10,8 @@ We pulled match data and champion data from the Kaggle dataset, cleaned and enco
 
 ### Repository Structure
 
-- `backend/` — loads the trained model and serves predictions
-- `frontend/` — Web UI for interacting with model
+- `backend/` — backend for accessing model
+- `frontend/` — frontend UI for interacting with model
 - `PullingRiotData.ipynb` — 
 - `LoL_Data_Import,_Exploration_&_Visualizations.ipynb` — EDA and visualizations
 - `FinalDataset.ipynb` / `FinalDataset_Augmented.ipynb` — Dataset construction and feature augmentation
