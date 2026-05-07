@@ -16,7 +16,6 @@
   --text:#e8edf2;--text2:#9aabb8;--text3:#4a6070;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;}
-/* subtle grid texture */
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:linear-gradient(rgba(26,212,245,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(26,212,245,.015) 1px,transparent 1px);
   background-size:40px 40px;}
@@ -25,13 +24,15 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 .app{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px 24px;overflow:hidden}
 
-header{text-align:center;margin-bottom:12px;flex-shrink:0}
+header{text-align:center;margin-bottom:12px;flex-shrink:0;position:relative}
 header h1{font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:800;color:#fff;letter-spacing:.35em;text-transform:uppercase;text-shadow:0 0 40px rgba(26,212,245,.3)}
 header p{font-size:.7rem;color:var(--text3);letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
 
+.info-btn{position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:1px solid var(--border2);color:var(--text3);font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:4px;cursor:pointer;transition:all .15s}
+.info-btn:hover{border-color:var(--gold);color:var(--gold-lt);background:var(--gold-dim)}
+
 .board{display:grid;grid-template-columns:1fr 240px 1fr;gap:18px;width:100%;max-width:1320px;flex:1;min-height:0;overflow:hidden}
 
-/* TEAM COLUMNS */
 .team-col{display:flex;flex-direction:column;min-height:0;overflow:hidden}
 .team-label{font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:8px 14px;border-radius:4px;margin-bottom:8px;flex-shrink:0}
 .team-label.blue{color:var(--blue);border-left:3px solid var(--blue);background:var(--blue-dim)}
@@ -55,7 +56,6 @@ header p{font-size:.7rem;color:var(--text3);letter-spacing:.18em;text-transform:
 .red .champ-frame{flex-direction:row-reverse}
 .red .frame-name{text-align:right}
 
-/* CENTER */
 .center{display:flex;flex-direction:column;align-items:stretch;gap:10px;padding-top:32px;min-height:0;overflow:hidden}
 
 .vs{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:800;color:var(--border2);letter-spacing:.3em;flex-shrink:0;text-align:center;text-transform:uppercase}
@@ -82,7 +82,6 @@ header p{font-size:.7rem;color:var(--text3);letter-spacing:.18em;text-transform:
 .btn-reset{border-color:var(--border);color:var(--text3);background:transparent;font-size:.78rem;padding:7px 0}
 .btn-reset:hover{border-color:var(--red);color:var(--red)}
 
-/* RECO */
 .reco{display:none;flex-direction:column;flex:1;min-height:0;background:var(--surface);border:1px solid var(--border2);border-radius:6px;overflow:hidden}
 .reco.visible{display:flex}
 .reco-header{padding:9px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--surface2)}
@@ -103,7 +102,6 @@ header p{font-size:.7rem;color:var(--text3);letter-spacing:.18em;text-transform:
 .reco-prob.good{color:var(--blue)}
 .reco-prob.bad{color:var(--red)}
 
-/* MODAL */
 .overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(5,8,12,.92);backdrop-filter:blur(8px);align-items:center;justify-content:center}
 .overlay.open{display:flex}
 .modal{background:var(--surface);border:1px solid var(--border2);border-radius:8px;width:min(700px,96vw);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,.9)}
@@ -126,7 +124,6 @@ header p{font-size:.7rem;color:var(--text3);letter-spacing:.18em;text-transform:
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--surface2);border:1px solid var(--gold);color:var(--gold-lt);font-family:'Barlow Condensed',sans-serif;font-size:.85rem;letter-spacing:.08em;padding:9px 20px;border-radius:5px;z-index:200;opacity:0;transition:all .3s;pointer-events:none;text-transform:uppercase}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* Wake-up overlay */
 #wake-banner{display:none;position:fixed;inset:0;z-index:300;background:rgba(8,11,15,.93);backdrop-filter:blur(6px);align-items:center;justify-content:center;flex-direction:column;gap:18px;}
 #wake-banner.show{display:flex;}
 .wake-box{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:40px 48px;text-align:center;max-width:420px;width:90%;}
@@ -143,11 +140,34 @@ header p{font-size:.7rem;color:var(--text3);letter-spacing:.18em;text-transform:
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(212,168,67,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn-loading{opacity:.6;pointer-events:none;cursor:default}
+
+/* INFO MODAL */
+.info-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(5,8,12,.92);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+.info-overlay.open{display:flex}
+.info-modal{background:var(--surface);border:1px solid var(--border2);border-radius:8px;width:min(680px,96vw);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,.9)}
+.info-modal-head{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--surface2)}
+.info-modal-title{font-family:'Barlow Condensed',sans-serif;color:var(--gold-lt);font-size:1rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.info-modal-close{background:none;border:none;color:var(--text3);font-size:1.5rem;cursor:pointer;line-height:1;transition:color .12s}
+.info-modal-close:hover{color:var(--red)}
+.info-body{overflow-y:auto;padding:28px 28px;display:flex;flex-direction:column;gap:22px}
+.info-body::-webkit-scrollbar{width:4px}
+.info-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.info-lead{font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;color:var(--gold-lt);letter-spacing:.05em;line-height:1.6;border-left:3px solid var(--gold);padding-left:14px}
+.info-section{}
+.info-section-title{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:8px}
+.info-section-body{font-size:.88rem;color:var(--text2);line-height:1.7}
+.info-divider{height:1px;background:var(--border);border:none}
+.info-team{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.info-tag{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:3px;border:1px solid var(--border2);color:var(--text3)}
 </style>
 </head>
 <body>
 <div class="app">
-  <header><h1>LOL</h1><p>Champion Draft Predictor</p></header>
+  <header>
+    <h1>LOL</h1>
+    <p>Champion Draft Predictor</p>
+    <button class="info-btn" onclick="openInfo()">About</button>
+  </header>
   <div class="board">
     <div class="team-col blue">
       <div class="team-label blue">Blue Team</div>
@@ -200,6 +220,7 @@ header p{font-size:.7rem;color:var(--text3);letter-spacing:.18em;text-transform:
   </div>
 </div>
 
+<!-- Champion picker modal -->
 <div class="overlay" id="overlay">
   <div class="modal">
     <div class="modal-head">
@@ -210,6 +231,50 @@ header p{font-size:.7rem;color:var(--text3);letter-spacing:.18em;text-transform:
     <div class="champ-grid" id="champ-grid"></div>
   </div>
 </div>
+
+<!-- Info modal -->
+<div class="info-overlay" id="info-overlay">
+  <div class="info-modal">
+    <div class="info-modal-head">
+      <span class="info-modal-title">How It Works</span>
+      <button class="info-modal-close" onclick="closeInfo()">×</button>
+    </div>
+    <div class="info-body">
+      <div class="info-lead">We built a machine learning model that predicts League of Legends match outcomes based on champion draft picks, and uses that to recommend the best next pick for your team.</div>
+
+      <div class="info-section">
+        <div class="info-section-title">The Data</div>
+        <div class="info-section-body">We tested four different datasets before settling on nathansmallcalder's Patch 25.19+ dataset — 149,000+ classic mode ranked games with all 172 current champions included. We chose it because it's the most recent and complete, even though older datasets had slightly higher raw accuracy (older patches were more unbalanced and easier to predict).</div>
+      </div>
+
+      <hr class="info-divider"/>
+
+      <div class="info-section">
+        <div class="info-section-title">How the Model Works</div>
+        <div class="info-section-body">Each game is represented as a table of champion picks — blue team picks get a +1, red team picks get a -1, and unpicked champions get a 0. We trained a Random Forest Classifier on this data to predict which team wins. To recommend the next best pick, we simply try every available champion, plug it in, and rank by predicted win probability. Role filtering limits suggestions to champions that actually play that role.</div>
+      </div>
+
+      <hr class="info-divider"/>
+
+      <div class="info-section">
+        <div class="info-section-title">Results</div>
+        <div class="info-section-body">The model achieves ~52% accuracy — which sounds low but is actually meaningful given that champion draft alone is a weak signal. Player skill and in-game decisions dominate outcomes, so a draft-only model hitting above 50% consistently is a real result.</div>
+      </div>
+
+      <hr class="info-divider"/>
+
+      <div class="info-section">
+        <div class="info-section-title">The Team</div>
+        <div class="info-team">
+          <span class="info-tag">Barrett Clark</span>
+          <span class="info-tag">Michael Garza</span>
+          <span class="info-tag">Musa Blake</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -301,6 +366,10 @@ function openModal(){
 function closeModal(){document.getElementById('overlay').classList.remove('open');}
 document.getElementById('overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
 
+function openInfo(){document.getElementById('info-overlay').classList.add('open');}
+function closeInfo(){document.getElementById('info-overlay').classList.remove('open');}
+document.getElementById('info-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeInfo();});
+
 function buildGrid(pool){
   const used=new Set([...slots.blue,...slots.red].filter(Boolean));
   const source=pool?allChampions.filter(n=>pool.includes(n)):allChampions;
@@ -347,12 +416,7 @@ async function predict(){
     const resp=await fetch(`${API}/predict`,{
       method:'POST',headers:{'Content-Type':'application/json'},
       signal:predictController.signal,
-      body:JSON.stringify({
-        blue_team:slots.blue.filter(Boolean),
-        red_team:slots.red.filter(Boolean),
-        team, role,
-        top_n: 0
-      })
+      body:JSON.stringify({blue_team:slots.blue.filter(Boolean),red_team:slots.red.filter(Boolean),team,role,top_n:0})
     });
     if(!resp.ok){toast('Error '+resp.status);return;}
     const d=await resp.json();
@@ -361,8 +425,7 @@ async function predict(){
   }catch(e){
     if(e.name==='AbortError') return;
     toast('API unreachable — wait 30s and retry');
-  }
-  finally{
+  }finally{
     btn.innerHTML='Predict Best Pick';
     btn.classList.remove('btn-loading');
   }
@@ -387,9 +450,7 @@ function showReco(recs,team,idx,role){
   panel.classList.add('visible');
 }
 
-function closeReco(){
-  document.getElementById('reco').classList.remove('visible');
-}
+function closeReco(){document.getElementById('reco').classList.remove('visible');}
 
 async function updateWinProb(){
   const b=slots.blue.filter(Boolean),re=slots.red.filter(Boolean);
@@ -415,8 +476,7 @@ function resetAll(){
 let tt;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),5000);}
 
-// ping Render every 4 min to prevent sleep
-setInterval(()=>fetch(API+'/health').catch(()=>{}), 240000);
+setInterval(()=>fetch(API+'/health').catch(()=>{}),240000);
 init();
 </script>
 </body>
