@@ -1,4 +1,4 @@
-LOL Champion Predictor - ML Final Project
+# LOL Champion Predictor - ML Final Project
 
 [need readme]
 
