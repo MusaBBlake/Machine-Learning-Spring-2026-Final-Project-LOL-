@@ -10,16 +10,16 @@ We pulled match data and champion data from the Kaggle dataset, cleaned and enco
 
 ### Repository Structure
 
-- `backend/` — backend for accessing model
-- `frontend/` — frontend UI for interacting with model
-- `PullingRiotData.ipynb` — 
-- `LoL_Data_Import,_Exploration_&_Visualizations.ipynb` — EDA and visualizations
-- `FinalDataset.ipynb` / `FinalDataset_Augmented.ipynb` — Dataset construction and feature augmentation
-- `LOLClustering_Experiment.ipynb` — Unsupervised clustering experiments on champions/team comps
-- `dataset_search_benchmark.ipynb` — Dataset search benchmarking
-- `index.html` — html for GitHub Page
-- `Machine Learning FINAL Presentation.pdf` — Final presentation slides
-- `Machine Learning Progess Report.pdf` — Mid-project progress report
-- `Machine Learning Project Proposal Final.docx` — Original project proposal
+- `backend/` - backend for accessing model
+- `frontend/` - frontend UI for interacting with model
+- `PullingRiotData.ipynb` - 
+- `LoL_Data_Import,_Exploration_&_Visualizations.ipynb` - EDA and visualizations
+- `FinalDataset.ipynb` / `FinalDataset_Augmented.ipynb` - Dataset construction and feature augmentation
+- `LOLClustering_Experiment.ipynb` - Unsupervised clustering experiments on champions/team comps
+- `dataset_search_benchmark.ipynb` - Dataset search benchmarking
+- `index.html` - html for GitHub Page
+- `Machine Learning FINAL Presentation.pdf` - Final presentation slides
+- `Machine Learning Progess Report.pdf` - Mid-project progress report
+- `Machine Learning Project Proposal Final.docx` - Original project proposal
 
 Clustering Plotly at: https://barrettclark76-blip.github.io/PLOT/
