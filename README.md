@@ -1,14 +1,14 @@
-# LOL Champion Predictor - ML Final Project
+### LOL Champion Predictor - ML Final Project
 
 A machine learning project that predicts League of Legends match outcomes and explores champion data using models trained on historical match data. Built as a final project for our Spring 2026 Machine Learning course.
 
 ***kaggle data:*** https://www.kaggle.com/datasets/nathansmallcalder/lol-match-history-and-summoner-data-80k-matches
 
-## Overview
+### Overview
 
 We pulled match data and champion data from the Kaggle dataset, cleaned and encoded it, then trained our classifier to predict match outcomes.
 
-## Repository Structure
+### Repository Structure
 
 - `backend/` — loads the trained model and serves predictions
 - `frontend/` — Web UI for interacting with model
